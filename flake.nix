@@ -17,7 +17,7 @@
           version = "0.1.0";
           src = ./.;
 
-          vendorHash = "sha256-W4hPm7UdKoxYs/Q1qKzyoal5h6ta7/jkjCaGXox3Hps=";
+          vendorHash = "sha256-BfmsCsMOh+6OGMCVJEJ+1akVFRCq3AksjRmZq/TtTm0=";
 
           buildInputs = with pkgs; [
             nats-server

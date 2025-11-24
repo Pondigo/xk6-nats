@@ -16,7 +16,7 @@ sed -i "s|vendorHash = \".*\"|vendorHash = \"$dummy_hash\"|g" flake.nix
 
 # Try to build and capture the actual hash
 echo "🧮 Calculating new vendor hash..."
-build_output=$(nix build .#k6-pondigo-nats 2>&1 || true)
+build_output=$(nix build .#k6-nats 2>&1 || true)
 
 # Extract the correct hash from the error message
 new_hash=$(echo "$build_output" | grep 'got:' | sed 's/.*got:[[:space:]]*//' | sed 's/[[:space:]]*$//' || echo "")
