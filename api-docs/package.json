@@ -1,0 +1,22 @@
+{
+  "name": "xk6-nats",
+  "version": "0.1.0",
+  "description": "xk6-nats is a k6 extension to load test NATS",
+  "main": "index.d.ts",
+  "repository": "git@github.com:pondigo/xk6-nats.git",
+  "author": "Pondigo <info@pondigo.com>",
+  "license": "AGPL-3.0",
+  "scripts": {
+    "generate-docs": "yarn exec typedoc index.d.ts && prettier -w .",
+    "validate-d-ts": "tsc --lib es2015 --noEmit index.d.ts",
+    "prettify": "prettier -w ."
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "typedoc": "^0.28.13",
+    "typedoc-plugin-markdown": "^4.9.0"
+  },
+  "dependencies": {
+    "typescript": "^5.9.2"
+  }
+}

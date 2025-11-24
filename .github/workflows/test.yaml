@@ -1,0 +1,79 @@
+name: Test xk6-nats
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+  pull_request:
+
+jobs:
+  test:
+    name: Test xk6-nats
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Nix ❄️
+        uses: cachix/install-nix-action@v22
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Setup Nix cache 🗄️
+        uses: actions/cache@v3
+        with:
+          path: /nix/store
+          key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', '**/flake.lock') }}
+          restore-keys: |
+            nix-${{ runner.os }}-
+
+      - name: Run prettier for linting scripts, configs and docs 🧹
+        uses: creyD/prettier_action@v4.3
+        with:
+          dry: True
+
+      - name: Lint code issues 🚨
+        uses: golangci/golangci-lint-action@v4
+        with:
+          skip-pkg-cache: true
+
+      - name: Check vendor hash 🔍
+        run: |
+          if ! nix build .#k6-pondigo-nats --out-link ./xk6-nats 2>/dev/null; then
+            echo "❌ Vendor hash mismatch detected. Updating..."
+            ./scripts/update-vendor-hash.sh
+            echo "✅ Vendor hash updated. Building again..."
+            nix build .#k6-pondigo-nats --out-link ./xk6-nats
+          fi
+
+      - name: Run NATS server ⚙️
+        run: |
+          docker run --detach --rm --name nats -p 4222:4222 -p 8222:8222 nats:latest
+
+      - name: Run Go tests 🔬
+        run: |
+          nix develop --command go test -cover -covermode atomic -coverprofile=profile.cov -v .
+
+      - name: Report coverage to coveralls 📈
+        uses: shogo82148/actions-goveralls@v1
+        with:
+          path-to-profile: profile.cov
+
+      - name: Run all xk6-nats test scripts 🧪
+        run: |
+          # Build test binary
+          nix build .#xk6-nats --out-link ./k6
+          for f in $(ls scripts/ 2>/dev/null || echo ""); do
+            if [[ -f "scripts/$f" ]]; then
+              ./k6 run --quiet -d 2s scripts/$f;
+            fi
+          done
+
+      - name: Stop containers 🛑
+        if: always()
+        run: |
+          docker stop nats || true
