@@ -1,5 +1,5 @@
 {
-  description = "Development environment for k6/Pondigo/nats extension";
+  description = "Development environment for k6-nats extension";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -12,8 +12,8 @@
         pkgs = nixpkgs.legacyPackages.${system};
 
         # Build the k6 extension
-        k6-pondigo-nats = pkgs.buildGoModule {
-          pname = "k6-pondigo-nats";
+        k6-nats = pkgs.buildGoModule {
+          pname = "k6-nats";
           version = "0.1.0";
           src = ./.;
 
@@ -58,9 +58,8 @@
       in
       {
         packages = {
-          default = k6-pondigo-nats;
-          k6-pondigo-nats = k6-pondigo-nats;
-          act = pkgs.act;
+          default = k6-nats;
+          k6-nats = k6-nats;
         };
 
         devShells.default = devShell;
@@ -69,6 +68,10 @@
           nats-server = {
             type = "app";
             program = "${pkgs.nats-server}/bin/nats-server";
+          };
+          k6-nats = {
+            type = "app";
+            program = "${k6-nats}/bin/k6-nats";
           };
         };
       });
