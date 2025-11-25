@@ -148,7 +148,7 @@ run_test_workflow() {
     # Step 7: Test scripts (if they exist)
     if [[ -f "test-script.js" ]]; then
         print_step "Running test script with k6 and extension..."
-        run_cmd "nix shell nixpkgs#k6 --command k6 run --quiet -d 2s --compatibility-mode=experimental_module_imports test-script.js" "Test k6-nats extension"
+        run_cmd "nix shell nixpkgs#k6 --command k6 run --quiet -d 2s test-script.js" "Test k6-nats extension"
     fi
     
     print_success "Test workflow completed successfully!"

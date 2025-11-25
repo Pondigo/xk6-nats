@@ -65,7 +65,6 @@ jobs:
           # Run test with k6 using extension
           nix shell nixpkgs#k6 --command k6 run \
             --quiet -d 2s \
-            --compatibility-mode=experimental_module_imports \
             test-script.js
 
       - name: Stop containers 🛑
