@@ -63,7 +63,7 @@ jobs:
           nix build .#k6-nats --out-link ./k6
           for f in $(ls scripts/ 2>/dev/null || echo ""); do
             if [[ -f "scripts/$f" ]]; then
-              ./k6 run --quiet -d 2s scripts/$f;
+              ./k6/bin/k6-nats run --quiet -d 2s scripts/$f;
             fi
           done
 
