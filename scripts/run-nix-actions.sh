@@ -140,19 +140,15 @@ run_test_workflow() {
     run_cmd "nix develop --command golangci-lint run --timeout=5m" "Go linting"
     
     # Step 5: Build xk6-nats with Nix (with shorter timeout for testing)
-    run_cmd "nix build .#k6-pondigo-nats --out-link ./xk6-nats" "Build xk6-nats" 120
+    run_cmd "nix build .#k6-nats --out-link ./xk6-nats" "Build xk6-nats" 120
     
     # Step 6: Run Go tests
     run_cmd "nix develop --command go test -cover -covermode atomic -coverprofile=profile.cov -v ./" "Go tests"
     
     # Step 7: Test scripts (if they exist)
-    if [[ -d "scripts" ]] && [[ $(ls scripts/*.js 2>/dev/null | wc -l) -gt 0 ]]; then
-        print_step "Running test scripts..."
-        for script in scripts/*.js; do
-            if [[ -f "$script" ]]; then
-                run_cmd "./xk6-nats run --quiet -d 2s $script" "Test script: $(basename $script)"
-            fi
-        done
+    if [[ -f "test-script.js" ]]; then
+        print_step "Running test script with k6 and extension..."
+        run_cmd "nix shell nixpkgs#k6 --command k6 run --quiet -d 2s --compatibility-mode=experimental_module_imports test-script.js" "Test k6-nats extension"
     fi
     
     print_success "Test workflow completed successfully!"
@@ -166,7 +162,7 @@ run_nix_workflow() {
     run_cmd "nix flake check" "Nix flake check"
     
     # Step 2: Build xk6-nats package
-    run_cmd "nix build .#k6-pondigo-nats" "Build xk6-nats package"
+    run_cmd "nix build .#k6-nats" "Build xk6-nats package"
     
     # Step 3: Build development shell
     run_cmd "nix build .#devShells.x86_64-linux.default" "Build development shell"
@@ -195,7 +191,7 @@ run_build_workflow() {
     print_info "Building for tag: $tag_name"
     
     # Step 1: Build with Nix
-    run_cmd "mkdir -p dist && nix build .#k6-pondigo-nats --out-link dist/xk6-nats_${tag_name}_linux_amd64" "Build xk6-nats with Nix"
+    run_cmd "mkdir -p dist && nix build .#k6-nats --out-link dist/xk6-nats_${tag_name}_linux_amd64" "Build xk6-nats with Nix"
     
     # Step 2: Generate SBOM (simplified)
     run_cmd "nix develop --command go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@latest && cyclonedx-gomod mod -json -licenses -output code-cyclonedx-xk6-nats-${tag_name}.json" "Generate SBOM"
