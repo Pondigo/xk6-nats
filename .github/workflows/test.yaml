@@ -59,11 +59,16 @@ jobs:
 
       - name: Run all xk6-nats test scripts 🧪
         run: |
-          # Build extension (to ensure it compiles)
-          nix build .#k6-nats --out-link ./k6-nats-extension
+          # Install xk6 and build k6 with our extension
+          nix shell nixpkgs#go --command bash -c '
+            go install go.k6.io/xk6/cmd/xk6@latest
+            xk6 build latest \
+              --with github.com/pondigo/xk6-nats=. \
+              --output k6-with-nats
+          '
           
-          # Run test with k6 using extension
-          nix shell nixpkgs#k6 --command k6 run \
+          # Run test with custom k6 binary
+          ./k6-with-nats run \
             --quiet -d 2s \
             test-script.js
 
