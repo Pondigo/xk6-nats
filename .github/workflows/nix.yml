@@ -19,13 +19,7 @@ jobs:
         with:
           nix_path: nixpkgs=channel:nixos-unstable
 
-      - name: Setup Nix cache 🗄️
-        uses: actions/cache@v3
-        with:
-          path: /nix/store
-          key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', '**/flake.lock') }}
-          restore-keys: |
-            nix-${{ runner.os }}-
+
 
       - name: Check flake ❄️
         run: nix flake check
@@ -42,13 +36,7 @@ jobs:
         with:
           nix_path: nixpkgs=channel:nixos-unstable
 
-      - name: Setup Nix cache 🗄️
-        uses: actions/cache@v3
-        with:
-          path: /nix/store
-          key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', '**/flake.lock') }}
-          restore-keys: |
-            nix-${{ runner.os }}-
+
 
       - name: Build xk6-nats package 🏗️
         run: nix build .#k6-nats
@@ -71,13 +59,7 @@ jobs:
         with:
           nix_path: nixpkgs=channel:nixos-unstable
 
-      - name: Setup Nix cache 🗄️
-        uses: actions/cache@v3
-        with:
-          path: /nix/store
-          key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', '**/flake.lock') }}
-          restore-keys: |
-            nix-${{ runner.os }}-
+
 
       - name: Build for ${{ matrix.system }} 🏗️
         run: nix build .#packages.${{ matrix.system }}.k6-nats || echo "Build failed for ${{ matrix.system }} (expected for unsupported platforms)"
